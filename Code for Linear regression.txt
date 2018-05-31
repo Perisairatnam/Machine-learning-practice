@@ -1,0 +1,43 @@
+%Load Data
+load patients;
+
+Patient_data=table(Age, Gender, Height, Weight, Smoker, Location,SelfAssessedHealthStatus,Systolic,'VariableNames',{'Age', 'Gender', 'Height', 'Weight', 'Smoker', 'Location','SelfAssessedHealthStatus','Systolic'});
+
+
+Patient_data.Gender=categorical(Patient_data.Gender);
+Patient_data.Smoker=categorical(Patient_data.Smoker);
+Patient_data.Location=categorical(Patient_data.Location);
+Patient_data.SelfAssessedHealthStatus=categorical(Patient_data.SelfAssessedHealthStatus);
+
+%Linear Regression Model
+LRModel=fitlm(Patient_data,'Systolic~Age+Gender+Height+Weight+Smoker+Location+SelfAssessedHealthStatus')
+
+%Identify the Outliers
+figure,subplot(2,2,1)
+plot(LRModel)
+subplot(2,2,2)
+plotResiduals(LRModel,'fitted')
+subplot(2,2,3)
+plotResiduals(LRModel)
+subplot(2,2,4)
+normplot(LRModel.Residuals.Raw)
+xlabel('residuals')
+
+
+figure, subplot(3,1,1)
+plot(LRModel)
+subplot(3,1,2)
+plotDiagnostics(LRModel)
+subplot(3,1,3)
+plotDiagnostics(LRModel,'cookd')
+
+LRModel.Diagnostics;
+
+LRModel=fitlm(Patient_data,'Systolic~Age+Gender+Height+Weight+Smoker+SelfAssessedHealthStatus')
+
+prednames = Patient_data.Properties.VariableNames(1:end-1);
+X = Patient_data(:,1:end);
+y = Patient_data(:,end);
+[beta,FitInfo] = lasso(X,y,'Standardize',true,'CV',10,'PredictorNames',prednames);
+lassoplot(beta,FitInfo,'PlotType','Lambda','XScale','log');
+hplot = get(gca,'Children');

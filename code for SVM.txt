@@ -1,0 +1,39 @@
+%Read the file
+[X] = xlsread('CellDNA.xls');
+Y = X(:,14);
+X(:,14) = [];
+
+%Standardize variables
+ZX = [zscore(X)];
+
+%Convert the response variables into non-interesting = 0 and interesting=1 value
+for i = 1:length(Y)
+ if Y(i,1) > 0
+  Y(i,1) = 1;    
+ else
+  Y(i,1) = 0;
+  end
+ end;
+
+%Create SVM model
+SVMModel = fitcsvm(ZX, Y);
+%SVMModel = fitcsvm(X, Y, 'Standardize', true);
+
+%Find Support vectors
+sv = SVMModel.SupportVectors;
+size(sv)
+
+%Find top 3 support vectors
+theta = SVMModel.Beta;
+theta0 = SVMModel.Bias; 
+result=X*theta + theta0 ;
+top=sort(abs(result));
+top(1)
+top(2)
+top(3)
+
+%Find values
+result(131)
+result(165)
+result(892)
+result(1057)

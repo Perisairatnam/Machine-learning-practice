@@ -1,0 +1,14 @@
+load patients;
+
+Smoker = double(Smoker);
+D_Sex = dummyvar(nominal(Gender));
+D_Loc = dummyvar(nominal(Location));
+D_SelfEval = dummyvar(ordinal(SelfAssessedHealthStatus));
+
+ZX = [zscore([Age Height Weight]) D_Sex(:, 2) Smoker D_Loc(:, 2:3) D_SelfEval(:, 2:4)];
+Y = Systolic;
+PN={'Age';'Height';'Weight';'Sex';'Smoker';'Loc1';'Loc2';'SE1';'SE2';'SE3'};
+[b fitinfo] = lasso(ZX, Y, 'CV',10, 'Alpha', 1,'PredictorNames',PN)
+lassoPlot(b,fitinfo,'PlotType', 'Lambda','PredictorNames',PN, 'XScale','log');
+lassoPlot(b,fitinfo,'PlotType','CV');
+lassoPlot(b,fitinfo,'PlotType','L1');
